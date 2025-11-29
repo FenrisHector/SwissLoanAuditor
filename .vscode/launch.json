@@ -1,0 +1,25 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Main",
+            "request": "launch",
+            "mainClass": "backend.Main",
+            "projectName": "SwissLoanAuditor_7df1725"
+        },
+        {
+            "type": "java",
+            "name": "Run Database Audit",
+            "request": "launch",
+            "mainClass": "backend.Main",
+            "projectName": "SwissLoanAuditor",
+            "cwd": "${workspaceFolder}",
+            "vmArgs": "",
+            "classpath": [
+                "${workspaceFolder}/bin",
+                "${workspaceFolder}/lib/*"
+            ]
+        }
+    ]
+}

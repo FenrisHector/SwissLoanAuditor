@@ -3,12 +3,11 @@ package backend;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 
 public class DatabaseManager {
-    
+
     // URL points to the database file inside the 'database/' folder
     private static final String URL = "jdbc:sqlite:database/audit_records.db";
 
@@ -16,7 +15,6 @@ public class DatabaseManager {
      * Initializes the database and creates the table if it does not exist.
      * The table stores both the applicant's profile and the audit result.
      */
-
     public void initializeDatabase() {
         // SQL to create the 'applicants' table
         String sql = "CREATE TABLE IF NOT EXISTS applicants (" +
@@ -30,13 +28,19 @@ public class DatabaseManager {
                 "approved_biased BOOLEAN, " + // Column for the Biased Officer
                 "approved_fair BOOLEAN)"; // Column for the Fair Officer
 
-        try (Connection conn = DriverManager.getConnection(URL);
-                Statement stmt = conn.createStatement()) {
+        try {
+            // --- MAGIC LINE: Force load the driver ---
+            Class.forName("org.sqlite.JDBC");
+            // ----------------------------------------
 
-            stmt.execute(sql);
-            System.out.println("Database connected and table schema checked.");
+            try (Connection conn = DriverManager.getConnection(URL);
+                    Statement stmt = conn.createStatement()) {
 
-        } catch (SQLException e) {
+                stmt.execute(sql);
+                System.out.println("Database connected and table schema checked.");
+            }
+
+        } catch (Exception e) {
             System.err.println("Database Initialization Error: " + e.getMessage());
         }
     }
@@ -44,42 +48,48 @@ public class DatabaseManager {
     // Saves a list of applicants and the result of their evaluation.
     public void saveAuditResults(List<Applicant> applicants, LoanOfficer officer, FairLoanOfficer fairOfficer) {
 
-        //Inserting audit results
+        // Inserting audit results
         String sql = "INSERT INTO applicants(id, name, income, credit_score, canton, nationality, age, approved_biased, approved_fair) VALUES(?,?,?,?,?,?,?,?,?)";
 
-        try (Connection conn = DriverManager.getConnection(URL);
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try {
+            // --- MAGIC LINE: Force load the driver ---
+            Class.forName("org.sqlite.JDBC");
+            // ----------------------------------------
 
-            // Disable auto commit to speed up the process
-            conn.setAutoCommit(false);
+            try (Connection conn = DriverManager.getConnection(URL);
+                    PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            // Traditional FOR loop structure
-            for (int i = 0; i < applicants.size(); i++) {
-                Applicant app = applicants.get(i); // Create 'app' variable by manual retrieval
+                // Disable auto commit to speed up the process
+                conn.setAutoCommit(false);
 
-                // Evaluate with both officers
-                boolean isApprovedBiased = officer.evaluateLoan(app);
-                boolean isApprovedFair = fairOfficer.evaluateLoan(app);
+                // Traditional FOR loop structure
+                for (int i = 0; i < applicants.size(); i++) {
+                    Applicant app = applicants.get(i); // Create 'app' variable by manual retrieval
 
-                // Setting parameters for the PreparedStatement
-                pstmt.setString(1, "ID:" + System.currentTimeMillis() + "-" + app.getName().hashCode());
-                pstmt.setString(2, app.getName());
-                pstmt.setDouble(3, app.getIncome());
-                pstmt.setInt(4, app.getCreditScore());
-                pstmt.setString(5, app.getCanton());
-                pstmt.setString(6, app.getNationality());
-                pstmt.setInt(7, app.getAge());
-                pstmt.setBoolean(8, isApprovedBiased); // Biased result
-                pstmt.setBoolean(9, isApprovedFair); // Fair result
+                    // Evaluate with both officers
+                    boolean isApprovedBiased = officer.evaluateLoan(app);
+                    boolean isApprovedFair = fairOfficer.evaluateLoan(app);
 
-                pstmt.addBatch(); // Add to batch
+                    // Setting parameters for the PreparedStatement
+                    pstmt.setString(1, "ID:" + System.currentTimeMillis() + "-" + app.getName().hashCode());
+                    pstmt.setString(2, app.getName());
+                    pstmt.setDouble(3, app.getIncome());
+                    pstmt.setInt(4, app.getCreditScore());
+                    pstmt.setString(5, app.getCanton());
+                    pstmt.setString(6, app.getNationality());
+                    pstmt.setInt(7, app.getAge());
+                    pstmt.setBoolean(8, isApprovedBiased); // Biased result
+                    pstmt.setBoolean(9, isApprovedFair); // Fair result
+
+                    pstmt.addBatch(); // Add to batch
+                }
+
+                pstmt.executeBatch(); // Send the entire batch
+                conn.commit(); // Commit changes
+                System.out.println("Saved " + applicants.size() + " audit records to SQLite.");
             }
 
-            pstmt.executeBatch(); // Send the entire batch
-            conn.commit(); // Commit changes
-            System.out.println("Saved " + applicants.size() + " audit records to SQLite.");
-
-        } catch (SQLException e) {
+        } catch (Exception e) {
             System.err.println("Save Error: " + e.getMessage());
         }
     }

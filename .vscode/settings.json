@@ -1,0 +1,9 @@
+{
+    "java.project.sourcePaths": [
+        "src"
+    ],
+    "java.project.referencedLibraries": [
+        "c:\\Users\\hecto\\OneDrive\\Escritorio\\Hector\\yo\\Proyectos\\SwissLoanAuditor\\lib\\sqlite-jdbc-3.45.1.0.jar"
+    ],
+    "java.project.outputPath": "bin"
+}

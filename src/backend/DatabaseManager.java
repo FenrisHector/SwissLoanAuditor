@@ -29,10 +29,7 @@ public class DatabaseManager {
                 "approved_fair BOOLEAN)"; // Column for the Fair Officer
 
         try {
-            // --- MAGIC LINE: Force load the driver ---
             Class.forName("org.sqlite.JDBC");
-            // ----------------------------------------
-
             try (Connection conn = DriverManager.getConnection(URL);
                     Statement stmt = conn.createStatement()) {
 
@@ -52,9 +49,7 @@ public class DatabaseManager {
         String sql = "INSERT INTO applicants(id, name, income, credit_score, canton, nationality, age, approved_biased, approved_fair) VALUES(?,?,?,?,?,?,?,?,?)";
 
         try {
-            // --- MAGIC LINE: Force load the driver ---
             Class.forName("org.sqlite.JDBC");
-            // ----------------------------------------
 
             try (Connection conn = DriverManager.getConnection(URL);
                     PreparedStatement pstmt = conn.prepareStatement(sql)) {

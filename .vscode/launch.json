@@ -3,23 +3,17 @@
     "configurations": [
         {
             "type": "java",
-            "name": "Main",
-            "request": "launch",
-            "mainClass": "backend.Main",
-            "projectName": "SwissLoanAuditor_7df1725"
-        },
-        {
-            "type": "java",
             "name": "Run Database Audit",
             "request": "launch",
-            "mainClass": "backend.Main",
-            "projectName": "SwissLoanAuditor",
+            "mainClass": "backend.AppLauncher",
             "cwd": "${workspaceFolder}",
-            "vmArgs": "",
+            "console": "integratedTerminal",
             "classpath": [
                 "${workspaceFolder}/bin",
-                "${workspaceFolder}/lib/*"
-            ]
+                "${workspaceFolder}/lib/*",
+                "${workspaceFolder}/resources"
+            ],
+            "vmArgs": "--module-path \"C:\\Users\\hecto\\OneDrive\\Imágenes\\javafx\\javafx-sdk-24.0.1\\lib\" --add-modules javafx.controls,javafx.fxml"
         }
     ]
 }
